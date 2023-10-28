@@ -16,11 +16,11 @@ ApiController.getByQuery = async (req, res) => {
     const searchTerm = req.query.q;
     const directory = `${app_root_path_1.default}/ftp`;
     if (!searchTerm) {
-        return res.status(400).json({ error: 'no terms to search' });
+        return res.status(400).json({ message: 'no terms to search' });
     }
     fs_1.default.readdir(directory, (err, files) => {
         if (err) {
-            return res.status(500).json(err);
+            return res.status(500).json({ message: 'internal server error' });
         }
         const matchingFiles = [];
         files.forEach((file) => {
@@ -36,21 +36,21 @@ ApiController.getByQuery = async (req, res) => {
 ApiController.create = async (req, res) => {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res
-            .status(400)
-            .json({ message: 'No files were uploaded in form-data' });
+            .status(500)
+            .json({ message: 'No files was uploaded in form-data' });
     }
     // Object.keys to get any input field sended in formdata'
     const sampleFile = req.files[Object.keys(req.files)[0]];
     if (!sampleFile.name.includes('csv') && !sampleFile.name.includes('txt')) {
         return res
-            .status(400)
+            .status(500)
             .json({ message: 'The file must be a .txt or .csv type' });
     }
     //Use date for single file name
     const uploadPath = `${app_root_path_1.default}/ftp/${Date.now()}.txt`;
     sampleFile.mv(uploadPath, function (err) {
         if (err) {
-            return res.status(500).send(err);
+            return res.status(500).json({ message: 'internal server error' });
         }
         res.status(200).json({ message: 'The file was uploaded successfully.' });
     });
